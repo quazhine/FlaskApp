@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Audio File</title>
+</head>
+<body>
+    <h1>Upload Audio File</h1>
+    <form id="upload-form" action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".wav,.mp3" required>
+        <button type="submit">Upload</button>
+    </form>
+    <progress id="progress-bar" value="0" max="100" style="width: 100%; display: none;"></progress>
+    <p id="status"></p>
+
+    <script>
+        const form = document.getElementById('upload-form');
+        const progressBar = document.getElementById('progress-bar');
+        const status = document.getElementById('status');
+
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const xhr = new XMLHttpRequest();
+
+            xhr.open('POST', form.action, true);
+
+            xhr.upload.onprogress = function(event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    progressBar.style.display = 'block';
+                    progressBar.value = percentComplete;
+                    status.textContent = `Uploading: ${Math.round(percentComplete)}%`;
+                }
+            };
+
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    window.location.href = xhr.responseURL;
+                } else {
+                    status.textContent = 'Upload failed.';
+                }
+                progressBar.style.display = 'none';
+            };
+
+            xhr.send(formData);
+        });
+    </script>
+</body>
+</html>
